@@ -14,6 +14,7 @@ public class SwiftWifiConnectPlugin: NSObject, FlutterPlugin {
             methodMap: [
                 "getConnectedSSID": plugin.getConnectedSSID,
                 "connect": plugin.connect,
+                "disconnect": plugin.disconnect,
                 "connectedSSIDOnListen": plugin.connectedSSIDOnListen,
                 "connectedSSIDOnCancel": plugin.connectedSSIDOnCancel
             ]
@@ -55,8 +56,11 @@ public class SwiftWifiConnectPlugin: NSObject, FlutterPlugin {
         let args = call.arguments as! [String: Any]
         let ssid = args["ssid"] as! String
         let password = args["password"] as! String
+        let joinOnce = args["joinOnce"] as! Bool
         
         let config = NEHotspotConfiguration.init(ssid: ssid, passphrase: password, isWEP: false)
+
+        config.joinOnce = joinOnce
         
         NEHotspotConfigurationManager.shared.apply(config) {error in
             if let error = error as NSError? {
@@ -75,5 +79,11 @@ public class SwiftWifiConnectPlugin: NSObject, FlutterPlugin {
                 trySend(result) { 0 }
             }
         }
+    }
+
+    func disconnect(call: FlutterMethodCall, result: @escaping FlutterResult) {
+        let args = call.arguments as! [String: Any]
+        let ssid = args["ssid"] as! String
+        NEHotspotConfigurationManager.shared.removeConfiguration(forSSID: ssid)
     }
 }

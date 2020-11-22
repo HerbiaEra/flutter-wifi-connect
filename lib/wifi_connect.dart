@@ -56,6 +56,7 @@ class WifiConnect {
     SecurityType securityType = SecurityType.auto,
     WifiConnectDialogs dialogs,
     Duration timeout: const Duration(seconds: 15),
+    bool joinOnce: false,
   }) async {
     assert (!hidden || securityType != SecurityType.auto);
 
@@ -70,6 +71,7 @@ class WifiConnect {
       'hidden': hidden,
       'capabilities': getCapabilities(securityType),
       'timeLimitMillis': timeLimit.millisecondsSinceEpoch,
+      'joinOnce': joinOnce,
     };
     var idx = await channel.invokeMethod("connect", args);
 
@@ -84,6 +86,25 @@ class WifiConnect {
       throw WifiConnectException(WifiConnectStatus.values[idx]);
     }
   }
+
+  static Future<void> disconnect(
+    BuildContext context, {
+    @required String ssid,
+    WifiConnectDialogs dialogs,
+  }) async {
+
+    dialogs ??= WifiConnectDialogs();
+    await useLocation(context, dialogs: dialogs);
+
+    var args = {
+      'ssid': ssid ?? '',
+    };
+    var idx = await channel.invokeMethod("disconnect", args);
+
+    if (idx != WifiConnectStatus.ok.index) {
+      throw WifiConnectException(WifiConnectStatus.values[idx]);
+    }
+  }  
 
   static Stream<String> getConnectedSSIDListener({
     Duration period: const Duration(seconds: 1),

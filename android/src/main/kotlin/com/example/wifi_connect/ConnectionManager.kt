@@ -156,4 +156,18 @@ class ConnectionManager(val ctx: Context, val wifi: WifiManager) {
         }
         return null
     }
+
+    fun disconnect(ssid: String): Boolean {
+        for (config in wifi.getConfiguredNetworks()) {
+            println("iterating on " + config.SSID + " " + config.networkId)
+            if (config.SSID.equals("\""+ssid+"\"")) {
+                val netId = config.networkId
+                println("disconnecting network id " + netId)
+                return wifi.removeNetwork(netId)
+            }
+        }
+        println("did not find ssid to disconnect "+ ssid)
+
+        return false
+    }
 }

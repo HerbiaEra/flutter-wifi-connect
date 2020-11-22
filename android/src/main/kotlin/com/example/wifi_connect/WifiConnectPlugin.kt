@@ -119,6 +119,12 @@ class WifiConnectPlugin(registrar: Registrar) : ActivityResultListener {
         }
     }
 
+    fun disconnect(call: MethodCall, result: Result) {
+        val ssid = call.argument<String>("ssid")!!
+        val r = conn.disconnect(ssid)
+        trySend(result) { if (r)  0 else 1}
+    }    
+
     fun waitForWifiConnect(timeLimitMillis: Long, ssid: String): Boolean {
         while (System.currentTimeMillis() < timeLimitMillis) {
             val connectedSSID = getConnectedSSID()
